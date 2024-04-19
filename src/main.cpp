@@ -1,18 +1,36 @@
 #include <Arduino.h>
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_MMA8451.h>
 
-// put function declarations here:
-int myFunction(int, int);
+#define MMA8451_DEFAULT_ADDRESS (0x1D) /**< MMA8451 default I2C address */
+
+Adafruit_MMA8451 mma = Adafruit_MMA8451();
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  Serial.begin(115200);
+  while (!Serial) {
+    delay(10); // Wait for serial monitor
+  }
+  
+  Wire.begin();
+
+  if (!mma.begin()) {
+    Serial.println("Could not find a valid MMA8451 sensor, check wiring!");
+    while (1);
+  }
+
+  mma.setRange(MMA8451_RANGE_4_G);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-}
+  sensors_event_t event;
+  mma.getEvent(&event);
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+  // Print the accelerometer data
+  Serial.print("X: "); Serial.print(event.acceleration.x); Serial.print(" ");
+  Serial.print("Y: "); Serial.print(event.acceleration.y); Serial.print(" ");
+  Serial.print("Z: "); Serial.println(event.acceleration.z);
+
+  delay(500); // Delay between readings
 }
