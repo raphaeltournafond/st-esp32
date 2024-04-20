@@ -13,6 +13,18 @@
 
 Adafruit_MMA8451 mma = Adafruit_MMA8451();
 BLECharacteristic *pCharacteristic;
+BLEServer *pServer;
+
+class MyServerCallbacks: public BLEServerCallbacks {
+    void onConnect(BLEServer* pServer) {
+      Serial.println("Device connected");
+    };
+
+    void onDisconnect(BLEServer* pServer) {
+      Serial.println("Device disconnected");
+      BLEDevice::startAdvertising(); // Restart advertising
+    }
+};
 
 void setup() {
   Serial.begin(115200);
@@ -25,7 +37,8 @@ void setup() {
   Serial.println("Starting BLE setup!");
 
   BLEDevice::init("Smart Tracker BLE");
-  BLEServer *pServer = BLEDevice::createServer();
+  pServer = BLEDevice::createServer();
+  pServer->setCallbacks(new MyServerCallbacks());
   BLEService *pService = pServer->createService(SERVICE_UUID);
   pCharacteristic = pService->createCharacteristic(
                                          CHARACTERISTIC_UUID,
