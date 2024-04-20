@@ -14,14 +14,17 @@
 Adafruit_MMA8451 mma = Adafruit_MMA8451();
 BLECharacteristic *pCharacteristic;
 BLEServer *pServer;
+bool isDeviceConnected = false;
 
 class MyServerCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
       Serial.println("Device connected");
+      isDeviceConnected = true;
     };
 
     void onDisconnect(BLEServer* pServer) {
       Serial.println("Device disconnected");
+      isDeviceConnected = false;
       BLEDevice::startAdvertising(); // Restart advertising
     }
 };
@@ -75,18 +78,21 @@ void setup() {
 }
 
 void loop() {
-  sensors_event_t event;
-  mma.getEvent(&event);
 
-  char buffer[30]; // Buffer to hold the string representation
-  sprintf(buffer, "%.3f,%.3f,%.3f", event.acceleration.x, event.acceleration.y, event.acceleration.z);
-  pCharacteristic->setValue(buffer);
-  pCharacteristic->notify();
+  if (isDeviceConnected) {
+    sensors_event_t event;
+    mma.getEvent(&event);
 
-  // Print the accelerometer data
-  Serial.print("X: "); Serial.print(event.acceleration.x); Serial.print(" ");
-  Serial.print("Y: "); Serial.print(event.acceleration.y); Serial.print(" ");
-  Serial.print("Z: "); Serial.println(event.acceleration.z);
+    char buffer[30]; // Buffer to hold the string representation
+    sprintf(buffer, "%.3f,%.3f,%.3f", event.acceleration.x, event.acceleration.y, event.acceleration.z);
+    pCharacteristic->setValue(buffer);
+    pCharacteristic->notify();
 
-  delay(1000); // Delay between readings
+    // Print the accelerometer data
+    Serial.print("X: "); Serial.print(event.acceleration.x); Serial.print(" ");
+    Serial.print("Y: "); Serial.print(event.acceleration.y); Serial.print(" ");
+    Serial.print("Z: "); Serial.println(event.acceleration.z);
+  }
+
+  delay(1000);
 }
