@@ -65,6 +65,11 @@ void loop() {
   sensors_event_t event;
   mma.getEvent(&event);
 
+  char buffer[30]; // Buffer to hold the string representation
+  sprintf(buffer, "%.3f,%.3f,%.3f", event.acceleration.x, event.acceleration.y, event.acceleration.z);
+  pCharacteristic->setValue(buffer);
+  pCharacteristic->notify();
+
   // Print the accelerometer data
   Serial.print("X: "); Serial.print(event.acceleration.x); Serial.print(" ");
   Serial.print("Y: "); Serial.print(event.acceleration.y); Serial.print(" ");
