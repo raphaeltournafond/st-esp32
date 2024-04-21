@@ -88,11 +88,8 @@ void loop() {
     pCharacteristic->setValue(buffer);
     pCharacteristic->notify();
 
-    // Print the accelerometer data
-    Serial.print("X: "); Serial.print(event.acceleration.x); Serial.print(" ");
-    Serial.print("Y: "); Serial.print(event.acceleration.y); Serial.print(" ");
-    Serial.print("Z: "); Serial.println(event.acceleration.z);
+    Serial.printf("X: %.3f Y: %.3f Z: %.3f\n", event.acceleration.x, event.acceleration.y, event.acceleration.z);
   }
 
-  delay(1000);
+  delay(100);
 }
